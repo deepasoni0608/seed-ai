@@ -1,0 +1,787 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Seed AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0b0d0c;
+      --sidebar: #101310;
+      --card: #151916;
+      --border: #2d362f;
+      --text: #f4f7f4;
+      --muted: #8f9b92;
+      --green: #dff4e2;
+      --green-text: #132017;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      background:
+        radial-gradient(
+          circle at 55% 5%,
+          #19331f 0%,
+          #0b0d0c 38%
+        );
+      color: var(--text);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      width: 260px;
+      min-height: 100vh;
+      background: var(--sidebar);
+      border-right: 1px solid #252a26;
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 750;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: white;
+    }
+
+    .new-chat {
+      margin-top: 30px;
+      padding: 13px 15px;
+      border-radius: 12px;
+      border: 1px solid #354039;
+      background: #172019;
+      color: white;
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .new-chat:hover {
+      background: #1d2a20;
+    }
+
+    .recent-title {
+      margin: 28px 10px 10px;
+      font-size: 11px;
+      color: #78837b;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .history {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #cbd3cd;
+      padding: 10px;
+      border-radius: 9px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .history:hover {
+      background: #1b241d;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+    }
+
+    .side-button {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #cbd3cd;
+      padding: 10px;
+      border-radius: 9px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .side-button:hover {
+      background: #1b241d;
+    }
+
+    /* MAIN */
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 68px;
+      border-bottom: 1px solid #202520;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 24px;
+    }
+
+    .theme-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid #303730;
+      background: #151a16;
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .mobile-brand {
+      display: none;
+    }
+
+    /* CHAT */
+
+    .chat {
+      width: min(900px, 100%);
+      margin: auto;
+      min-height: calc(100vh - 68px);
+      display: flex;
+      flex-direction: column;
+      padding: 45px 24px 20px;
+    }
+
+    .welcome {
+      flex: 1;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .hero-logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 30px;
+      object-fit: cover;
+      margin-bottom: 25px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      background: white;
+    }
+
+    .welcome h1 {
+      font-size: clamp(34px, 5vw, 54px);
+      letter-spacing: -0.045em;
+      margin-bottom: 15px;
+    }
+
+    .welcome p {
+      max-width: 600px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* MESSAGES */
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0 25px;
+    }
+
+    .message-row {
+      display: flex;
+      margin: 18px 0;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.seed {
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      max-width: 75%;
+      padding: 14px 17px;
+      border-radius: 18px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .user .bubble {
+      background: var(--green);
+      color: var(--green-text);
+      border-bottom-right-radius: 5px;
+    }
+
+    .seed .bubble {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #e3ebe5;
+      border-bottom-left-radius: 5px;
+    }
+
+    /* SUGGESTIONS */
+
+    .suggestions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .suggestion {
+      border: 1px solid #29332c;
+      background: #121713;
+      color: #bfc9c1;
+      padding: 9px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .suggestion:hover {
+      background: #1b251e;
+    }
+
+    /* INPUT */
+
+    .composer {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid #303a32;
+      border-radius: 18px;
+      padding: 10px 10px 10px 15px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: white;
+      font: inherit;
+      line-height: 1.5;
+      padding: 7px 0;
+      max-height: 160px;
+    }
+
+    textarea::placeholder {
+      color: #77827a;
+    }
+
+    .send-button {
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 12px;
+      background: var(--green);
+      color: var(--green-text);
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      transform: scale(1.04);
+    }
+
+    .disclaimer {
+      text-align: center;
+      color: #68736b;
+      font-size: 11px;
+      margin-top: 9px;
+    }
+
+    /* LIGHT MODE */
+
+    body.light {
+      --bg: #f4f7f4;
+      --sidebar: #ffffff;
+      --card: #ffffff;
+      --border: #d8e1da;
+      --text: #172019;
+      --muted: #647067;
+
+      background: #f4f7f4;
+      color: var(--text);
+    }
+
+    body.light .sidebar {
+      border-color: #dde5de;
+    }
+
+    body.light .topbar {
+      border-color: #dde5de;
+    }
+
+    body.light .theme-button {
+      background: white;
+      color: #172019;
+      border-color: #d8e1da;
+    }
+
+    body.light .new-chat {
+      background: #f4f7f4;
+      color: #172019;
+      border-color: #d8e1da;
+    }
+
+    body.light .suggestion {
+      background: white;
+      color: #425046;
+      border-color: #d8e1da;
+    }
+
+    body.light textarea {
+      color: #172019;
+    }
+
+    body.light .seed .bubble {
+      background: white;
+      color: #172019;
+      border-color: #d8e1da;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 760px) {
+
+      .sidebar {
+        display: none;
+      }
+
+      .topbar {
+        justify-content: space-between;
+        padding: 0 16px;
+      }
+
+      .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 19px;
+        font-weight: 700;
+      }
+
+      .mobile-brand img {
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+      }
+
+      .chat {
+        padding: 25px 15px 15px;
+      }
+
+      .welcome {
+        min-height: 380px;
+      }
+
+      .hero-logo {
+        width: 85px;
+        height: 85px;
+      }
+
+      .suggestions {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+
+      .suggestion {
+        white-space: nowrap;
+      }
+
+      .bubble {
+        max-width: 88%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+      <!-- Put your logo file in the same folder and name it seed-logo.png -->
+      <img
+        class="brand-logo"
+        src="seed-logo.png"
+        alt="Seed logo"
+      >
+
+      <span>Seed</span>
+    </div>
+
+    <button class="new-chat" onclick="newChat()">
+      ＋ New chat
+    </button>
+
+    <div class="recent-title">
+      Recent
+    </div>
+
+    <button class="history">
+      Current conversation
+    </button>
+
+    <div class="sidebar-bottom">
+
+      <button class="side-button">
+        ⚙ Settings
+      </button>
+
+      <button class="side-button">
+        ? Help
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- MAIN -->
+
+  <main class="main">
+
+    <header class="topbar">
+
+      <div class="mobile-brand">
+
+        <img
+          src="seed-logo.png"
+          alt="Seed"
+        >
+
+        <span>Seed</span>
+
+      </div>
+
+      <button
+        class="theme-button"
+        onclick="toggleTheme()"
+      >
+        ◐
+      </button>
+
+    </header>
+
+
+    <!-- CHAT -->
+
+    <section class="chat">
+
+      <!-- WELCOME -->
+
+      <div
+        class="welcome"
+        id="welcome"
+      >
+
+        <img
+          class="hero-logo"
+          src="seed-logo.png"
+          alt="Seed AI"
+        >
+
+        <h1>
+          What will you grow today?
+        </h1>
+
+        <p>
+          Ask Seed anything. Explore ideas, learn something new,
+          or build your next project.
+        </p>
+
+      </div>
+
+
+      <!-- MESSAGES -->
+
+      <div
+        class="messages"
+        id="messages"
+      ></div>
+
+
+      <!-- INPUT -->
+
+      <div class="composer-wrap">
+
+        <div class="suggestions">
+
+          <button
+            class="suggestion"
+            onclick="usePrompt('Help me brainstorm a new project')"
+          >
+            Brainstorm an idea
+          </button>
+
+          <button
+            class="suggestion"
+            onclick="usePrompt('Explain something to me simply')"
+          >
+            Explain something
+          </button>
+
+          <button
+            class="suggestion"
+            onclick="usePrompt('Help me make a plan')"
+          >
+            Make a plan
+          </button>
+
+        </div>
+
+
+        <form
+          class="composer"
+          onsubmit="sendMessage(event)"
+        >
+
+          <textarea
+            id="input"
+            rows="1"
+            placeholder="Message Seed..."
+          ></textarea>
+
+          <button
+            class="send-button"
+            type="submit"
+          >
+            ↑
+          </button>
+
+        </form>
+
+        <div class="disclaimer">
+          Seed can make mistakes. Check important information.
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <script>
+
+    const input =
+      document.getElementById("input");
+
+    const messages =
+      document.getElementById("messages");
+
+    const welcome =
+      document.getElementById("welcome");
+
+
+    /*
+      AUTO-RESIZE TEXT BOX
+    */
+
+    input.addEventListener("input", function () {
+
+      input.style.height = "auto";
+
+      input.style.height =
+        Math.min(input.scrollHeight, 160) + "px";
+
+    });
+
+
+    /*
+      QUICK PROMPTS
+    */
+
+    function usePrompt(text) {
+
+      input.value = text;
+
+      input.focus();
+
+      input.dispatchEvent(
+        new Event("input")
+      );
+
+    }
+
+
+    /*
+      ADD MESSAGE
+    */
+
+    function addMessage(text, type) {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "message-row " + type;
+
+
+      const bubble =
+        document.createElement("div");
+
+      bubble.className =
+        "bubble";
+
+      bubble.textContent =
+        text;
+
+
+      row.appendChild(bubble);
+
+      messages.appendChild(row);
+
+
+      messages.scrollTop =
+        messages.scrollHeight;
+
+    }
+
+
+    /*
+    async function sendMessage(event) {
+
+  event.preventDefault();
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  welcome.style.display = "none";
+
+  addMessage(text, "user");
+
+  input.value = "";
+  input.style.height = "auto";
+
+  const loading = document.createElement("div");
+  loading.className = "message-row seed";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = "Thinking...";
+
+  loading.appendChild(bubble);
+  messages.appendChild(loading);
+
+  try {
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "user",
+            content: text
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    loading.remove();
+
+    addMessage(
+      data.reply,
+      "seed"
+    );
+
+  } catch (error) {
+
+    loading.remove();
+
+    addMessage(
+      "I couldn't connect to my AI server.",
+      "seed"
+    );
+
+    console.error(error);
+  }
+}
+
+    /*
+      NEW CHAT
+    */
+
+    function newChat() {
+
+      messages.innerHTML =
+        "";
+
+      welcome.style.display =
+        "flex";
+
+      input.value =
+        "";
+
+      input.style.height =
+        "auto";
+
+      input.focus();
+
+    }
+
+
+    /*
+      DARK / LIGHT MODE
+    */
+
+    function toggleTheme() {
+
+      document.body.classList.toggle(
+        "light"
+      );
+
+    }
+
+  </script>
+
+</body>
+</html>
+```
+
+
